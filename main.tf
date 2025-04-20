@@ -50,3 +50,25 @@ resource "aws_iam_policy" "eventbridge_sns_publish" {
     ]
   })
 }
+
+resource "aws_iam_role" "eventbridge_sns_publish" {
+  name = "Amazon_EventBridge_Invoke_Sns_fare_prediction"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "events.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "eventbridge_sns_publish" {
+  role       = aws_iam_role.eventbridge_sns_publish.name
+  policy_arn = aws_iam_policy.eventbridge_sns_publish.arn
+}
