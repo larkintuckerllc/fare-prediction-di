@@ -32,3 +32,21 @@ resource "aws_sns_topic_subscription" "fare_prediction_email" {
   protocol  = "email"
   endpoint  = "john@larkintuckerllc.com"
 }
+
+resource "aws_iam_policy" "eventbridge_sns_publish" {
+  name        = "Amazon_EventBridge_Invoke_Sns_fare_prediction"
+  description = "Policy that allows publishing to the fare-prediction SNS topic"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "sns:Publish"
+        ]
+        Resource = "${aws_sns_topic.fare_prediction.arn}"
+      }
+    ]
+  })
+}
