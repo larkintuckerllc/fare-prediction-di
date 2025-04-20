@@ -22,3 +22,13 @@ resource "aws_s3_bucket_lifecycle_configuration" "raw_folder_expiration" {
     }
   }
 }
+
+resource "aws_sns_topic" "fare_prediction" {
+  name = "fare-prediction"
+}
+
+resource "aws_sns_topic_subscription" "fare_prediction_email" {
+  topic_arn = aws_sns_topic.fare_prediction.arn
+  protocol  = "email"
+  endpoint  = "john@larkintuckerllc.com"
+}
