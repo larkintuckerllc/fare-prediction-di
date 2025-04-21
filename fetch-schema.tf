@@ -46,4 +46,18 @@ resource "aws_iam_role_policy_attachment" "glue_service_role_policy" {
 resource "aws_iam_role_policy_attachment" "fare_prediction_crawler_s3_policy" {
   role       = aws_iam_role.fare_prediction_crawler.name
   policy_arn = aws_iam_policy.fare_prediction_s3.arn
+}
+
+resource "aws_glue_catalog_database" "fare_prediction" {
+  name = "fare-prediction"
+}
+
+resource "aws_glue_crawler" "fare_prediction" {
+  name          = "fare-prediction"
+  database_name = aws_glue_catalog_database.fare_prediction.name
+  role          = aws_iam_role.fare_prediction_crawler.arn
+
+  s3_target {
+    path = "s3://${aws_s3_bucket.fare_prediction.id}/raw/"
+  }
 } 
