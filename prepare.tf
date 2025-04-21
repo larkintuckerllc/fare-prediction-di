@@ -47,3 +47,35 @@ resource "aws_iam_role_policy_attachment" "fare_prediction_etl_s3" {
   role       = aws_iam_role.fare_prediction_etl.name
   policy_arn = aws_iam_policy.fare_prediction_etl_s3.arn
 }
+
+resource "aws_glue_job" "fare_prediction" {
+  execution_class   = "STANDARD"
+  name              = "fare-prediction"
+  role_arn          = aws_iam_role.fare_prediction_etl.arn
+  glue_version      = "5.0"
+  worker_type       = "G.1X"
+  number_of_workers = 2
+  timeout           = 480
+
+  command {
+    script_location = "s3://${aws_s3_bucket.fare_prediction.id}/scripts/fare-prediction.py"
+    python_version  = "3"
+  }
+
+  default_arguments = {
+    "--job-language"           = "python"
+    "--enable-continuous-cloudwatch-log" = "true"
+    "--enable-glue-datacatalog"          = "true"
+    "--enable-observability-metrics"     = "true"
+    "--enable-metrics"                   = "true"
+    "--enable-spark-ui"                  = "true"
+    "--spark-event-logs-path"            = "s3://${aws_s3_bucket.fare_prediction.id}/sparkHistoryLogs/"
+    "--enable-job-insights"              = "true"
+    "--job-bookmark-option"              = "job-bookmark-disable"
+    "--TempDir"                          = "s3://${aws_s3_bucket.fare_prediction.id}/temporary/"
+  }
+
+  execution_property {
+    max_concurrent_runs = 1
+  }
+}
