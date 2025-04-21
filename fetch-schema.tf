@@ -1,5 +1,5 @@
-resource "aws_iam_policy" "fare_prediction_s3" {
-  name        = "fare-prediction-s3"
+resource "aws_iam_policy" "fare_prediction_crawler_s3" {
+  name        = "fare-prediction-crawler-s3"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -38,14 +38,14 @@ resource "aws_iam_role" "fare_prediction_crawler" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "glue_service_role_policy" {
+resource "aws_iam_role_policy_attachment" "fare_prediction_crawler_glue_service" {
   role       = aws_iam_role.fare_prediction_crawler.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
 }
 
-resource "aws_iam_role_policy_attachment" "fare_prediction_crawler_s3_policy" {
+resource "aws_iam_role_policy_attachment" "fare_prediction_crawler_s3" {
   role       = aws_iam_role.fare_prediction_crawler.name
-  policy_arn = aws_iam_policy.fare_prediction_s3.arn
+  policy_arn = aws_iam_policy.fare_prediction_crawler_s3.arn
 }
 
 resource "aws_glue_catalog_database" "fare_prediction" {
