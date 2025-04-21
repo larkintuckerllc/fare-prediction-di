@@ -23,6 +23,12 @@ resource "aws_s3_bucket_lifecycle_configuration" "raw_folder_expiration" {
   }
 }
 
+resource "aws_s3_bucket_notification" "fare_prediction" {
+  bucket = aws_s3_bucket.fare_prediction.id
+
+  eventbridge = true
+}
+
 resource "aws_sns_topic" "fare_prediction" {
   name = "fare-prediction"
 }
@@ -71,4 +77,29 @@ resource "aws_iam_role" "eventbridge_sns_publish" {
 resource "aws_iam_role_policy_attachment" "eventbridge_sns_publish" {
   role       = aws_iam_role.eventbridge_sns_publish.name
   policy_arn = aws_iam_policy.eventbridge_sns_publish.arn
+}
+
+resource "aws_cloudwatch_event_rule" "s3_object_created" {
+  name        = "fare-prediction-s3-object-created"
+  description = "Capture S3 object creation events in the fare-prediction bucket"
+
+  event_pattern = jsonencode({
+    "source": ["aws.s3"],
+    "detail-type": ["Object Created"],
+    "detail": {
+      "bucket": {
+        "name": [aws_s3_bucket.fare_prediction.id]
+      },
+      "object": {
+        "key": [{"prefix": "raw/"}]
+      }
+    }
+  })
+}
+
+resource "aws_cloudwatch_event_target" "sns" {
+  rule      = aws_cloudwatch_event_rule.s3_object_created.name
+  target_id = "SendToSNS"
+  arn       = aws_sns_topic.fare_prediction.arn
+  role_arn  = aws_iam_role.eventbridge_sns_publish.arn
 }
