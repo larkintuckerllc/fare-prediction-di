@@ -52,8 +52,8 @@ resource "aws_iam_policy" "fare_prediction_sns_publish" {
   })
 }
 
-resource "aws_iam_role" "fare_prediction_eventbridge" {
-  name = "fare-prediction-eventbridge"
+resource "aws_iam_role" "fare_prediction_eventbridge_sns_publish" {
+  name = "fare-prediction-eventbridge-sns-publish"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -70,7 +70,7 @@ resource "aws_iam_role" "fare_prediction_eventbridge" {
 }
 
 resource "aws_iam_role_policy_attachment" "fare_prediction_eventbridge_sns_publish" {
-  role       = aws_iam_role.fare_prediction_eventbridge.name
+  role       = aws_iam_role.fare_prediction_eventbridge_sns_publish.name
   policy_arn = aws_iam_policy.fare_prediction_sns_publish.arn
 }
 
@@ -95,5 +95,5 @@ resource "aws_cloudwatch_event_target" "fare_prediction_s3_object_created_sns" {
   rule      = aws_cloudwatch_event_rule.fare_prediction_s3_object_created.name
   target_id = "SendToSNS"
   arn       = aws_sns_topic.fare_prediction.arn
-  role_arn  = aws_iam_role.fare_prediction_eventbridge.arn
+  role_arn  = aws_iam_role.fare_prediction_eventbridge_sns_publish.arn
 }
