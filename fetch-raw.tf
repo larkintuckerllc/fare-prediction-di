@@ -91,7 +91,7 @@ resource "aws_cloudwatch_event_rule" "fare_prediction_s3_object_created" {
   })
 }
 
-resource "aws_cloudwatch_event_target" "fare_prediction_s3_object_created_sns" {
+resource "aws_cloudwatch_event_target" "fare_prediction_s3_object_created_sns_publish" {
   rule      = aws_cloudwatch_event_rule.fare_prediction_s3_object_created.name
   target_id = "SendToSNS"
   arn       = aws_sns_topic.fare_prediction.arn

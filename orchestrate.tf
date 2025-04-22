@@ -52,3 +52,10 @@ resource "aws_glue_trigger" "fare_prediction_eventbridge" {
     job_name = aws_glue_job.fare_prediction.name
   }
 }
+
+resource "aws_cloudwatch_event_target" "fare_prediction_s3_object_created_glue_notify_event" {
+  rule      = aws_cloudwatch_event_rule.fare_prediction_s3_object_created.name
+  target_id = "TriggerGlueWorkflow"
+  arn       = aws_glue_workflow.fare_prediction.arn
+  role_arn  = aws_iam_role.fare_prediction_eventbridge_glue_notify_event.arn
+}
