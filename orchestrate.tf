@@ -42,3 +42,13 @@ resource "aws_iam_role_policy_attachment" "fare_prediction_eventbridge_glue_noti
   role       = aws_iam_role.fare_prediction_eventbridge_glue_notify_event.name
   policy_arn = aws_iam_policy.fare_prediction_glue_notify_event.arn
 }
+
+resource "aws_glue_trigger" "fare_prediction_eventbridge" {
+  name          = "fare-prediction-eventbridge"
+  type          = "EVENT"
+  workflow_name = aws_glue_workflow.fare_prediction.name
+
+  actions {
+    job_name = aws_glue_job.fare_prediction.name
+  }
+}
